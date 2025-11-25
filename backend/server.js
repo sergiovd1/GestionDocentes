@@ -67,77 +67,97 @@ app.get("/", (req, res) => res.redirect("/login"));
 
 // ================= MANTENIMIENTO =================
 
-// Ruta de utilidad para arreglar la base de datos si da error de 'ENUM'
 app.get("/fix-db", async (req, res) => {
   try {
-    // 1. Crear tablas si no existen (Configuración y Guardias)
-    await pool.query(
-      `CREATE TABLE IF NOT EXISTS configuracion (clave VARCHAR(50) PRIMARY KEY, valor VARCHAR(255))`
-    );
-    await pool.query(
-      `CREATE TABLE IF NOT EXISTS guardia_asignada (id INT AUTO_INCREMENT PRIMARY KEY, fecha DATE, hueco INT, ausente_siglas VARCHAR(50), cubre_siglas VARCHAR(50), grupo VARCHAR(100), aula VARCHAR(100), realizada BOOLEAN DEFAULT NULL, observaciones TEXT)`
-    );
-
-    // 2. Arreglar la columna ENUM (para que acepte tildes y cualquier texto)
-    try {
-      await pool.query(
-        `ALTER TABLE docente MODIFY COLUMN tipo_funcionario VARCHAR(50) DEFAULT 'Interino'`
-      );
-    } catch (e) {
-      console.log("Aviso: tipo_funcionario ya estaba bien");
-    }
-
-    // 3. AÑADIR LA COLUMNA FALTANTE (guardias_realizadas) <--- ESTA ES LA CLAVE
-    try {
-      await pool.query(
-        `ALTER TABLE docente ADD COLUMN guardias_realizadas INT DEFAULT 0`
-      );
-    } catch (e) {
-      // Si el error es 1060 (Duplicate column name), significa que ya existe, lo ignoramos
-      if (e.errno !== 1060)
-        console.log("Error añadiendo columna: " + e.message);
-    }
-
-    res.send(
-      "<h1>Base de datos reparada</h1><p>Se ha añadido la columna <b>guardias_realizadas</b> correctamente.</p><a href='/admin'>Volver al Admin</a>"
-    );
-  } catch (e) {
-    res.send("Error mantenimiento: " + e.message);
-  }
-});
-
-app.get("/init-admin", async (req, res) => {
-  const bcrypt = require("bcrypt");
-  try {
-    const hash = await bcrypt.hash("1234", 10);
-
-    // Aseguramos que exista el departamento 1 (General) para no dar error
+    // 1. Tabla DEPARTAMENTO
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS departamento (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL UNIQUE
+            )
+        `);
+    // Insertamos el general para que no falle la FK
     await pool.query(
       `INSERT IGNORE INTO departamento (id, nombre) VALUES (1, 'General')`
     );
 
-    // Insertamos el Admin
+    // 2. Tabla CONFIGURACION
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS configuracion (
+                clave VARCHAR(50) PRIMARY KEY,
+                valor VARCHAR(255)
+            )
+        `);
     await pool.query(
-      `
-            INSERT INTO docente (siglas, codigo, nombre, email, password, es_admin, departamento_id, tipo_funcionario, temp_password)
-            VALUES ('ADM', 'ADM', 'Super Admin', 'admin@admin.com', ?, 1, 1, 'Carrera', 0)
-            ON DUPLICATE KEY UPDATE password = VALUES(password), es_admin = 1
-        `,
-      [hash]
+      `INSERT IGNORE INTO configuracion (clave, valor) VALUES ('max_asuntos_propios_dia', '2')`
     );
 
-    res.send(`
-            <div style="font-family: sans-serif; text-align: center; padding: 50px;">
-                <h1 style="color: green;">¡Administrador Creado!</h1>
-                <p>Ya puedes iniciar sesión con:</p>
-                <p>Usuario: <b>ADM</b></p>
-                <p>Contraseña: <b>1234</b></p>
-                <br>
-                <a href="/login" style="padding: 10px 20px; background: #4f46e5; color: white; text-decoration: none; border-radius: 5px;">Ir al Login</a>
-            </div>
+    // 3. Tabla DOCENTE (La que te daba error)
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS docente (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                siglas VARCHAR(20) UNIQUE NOT NULL,
+                codigo VARCHAR(20),
+                nombre VARCHAR(100) NOT NULL,
+                email VARCHAR(100),
+                password VARCHAR(255),
+                temp_password BOOLEAN DEFAULT 0,
+                es_admin BOOLEAN DEFAULT 0,
+                departamento_id INT DEFAULT 1,
+                tipo_funcionario VARCHAR(50) DEFAULT 'Interino',
+                antiguedad_centro DATE DEFAULT '2024-01-01',
+                nota_oposicion DECIMAL(5,2) DEFAULT 0.00,
+                guardias_realizadas INT DEFAULT 0,
+                FOREIGN KEY (departamento_id) REFERENCES departamento(id)
+            )
         `);
+
+    // 4. Tabla HORARIO
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS horario (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                docente VARCHAR(20) NOT NULL,
+                dia_semana VARCHAR(10) NOT NULL,
+                hueco INT NOT NULL,
+                modulo VARCHAR(100),
+                grupo VARCHAR(50),
+                aula VARCHAR(50),
+                tipo VARCHAR(20) DEFAULT 'LEC',
+                CONSTRAINT unique_horario UNIQUE (docente, dia_semana, hueco)
+            )
+        `);
+
+    // 5. Tabla ASUNTOS PROPIOS
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS asunto_propio (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                docente_siglas VARCHAR(20) NOT NULL,
+                fecha DATE NOT NULL,
+                estado ENUM('pendiente', 'aprobado', 'rechazado') DEFAULT 'pendiente',
+                material_pdf VARCHAR(255)
+            )
+        `);
+
+    // 6. Tabla GUARDIAS ASIGNADAS
+    await pool.query(`
+            CREATE TABLE IF NOT EXISTS guardia_asignada (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                fecha DATE NOT NULL,
+                hueco INT NOT NULL,
+                ausente_siglas VARCHAR(50),
+                cubre_siglas VARCHAR(50),
+                grupo VARCHAR(100),
+                aula VARCHAR(100),
+                realizada BOOLEAN DEFAULT NULL,
+                observaciones TEXT
+            )
+        `);
+
+    res.send(
+      "<h1>¡Tablas Creadas!</h1><p>La base de datos ya tiene la estructura correcta.</p><p>Ahora ve a: <a href='/init-admin'>Crear Usuario Admin</a></p>"
+    );
   } catch (e) {
-    res.send("Error creando admin: " + e.message);
+    res.send("Error fatal creando tablas: " + e.message);
   }
 });
 
