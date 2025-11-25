@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 // 1. Importo la conexión a la BD (solo para la ruta de mantenimiento 'fix-db')
 const pool = require("./config/db");
@@ -104,16 +105,38 @@ app.get("/fix-db", async (req, res) => {
       console.log("Aviso: tipo_funcionario ya estaba bien o error menor");
     }
 
-    // 3. AÑADIR LA COLUMNA FALTANTE (guardias_realizadas) <--- ESTA ES LA SOLUCIÓN A TU ERROR
+    // 3. AÑADIR LA COLUMNA FALTANTE ... (código que ya tenías)
     try {
       await pool.query(
         `ALTER TABLE docente ADD COLUMN guardias_realizadas INT DEFAULT 0`
       );
     } catch (e) {
-      // Si el error es 1060 (Duplicate column name), significa que ya existe y no pasa nada
-      if (e.errno !== 1060)
-        console.log("Nota sobre columna guardias_realizadas: " + e.message);
+      // ... (código que ya tenías)
     }
+
+    // =====================================================
+    // 4. CREAR SUPER ADMIN (ADM / 1234) <-- AÑADE ESTO
+    // =====================================================
+    try {
+      const passwordHash = await bcrypt.hash("1234", 10);
+
+      // Usamos INSERT ... ON DUPLICATE KEY UPDATE para que si ya existe, solo actualice la contraseña
+      await pool.query(
+        `
+            INSERT INTO docente 
+            (siglas, codigo, nombre, email, password, es_admin, departamento_id, tipo_funcionario, temp_password, antiguedad_centro)
+            VALUES 
+            ('ADM', 'ADM', 'Administrador Sistema', 'admin@sistema.com', ?, 1, 1, 'Carrera', 0, '2000-01-01')
+            ON DUPLICATE KEY UPDATE password = VALUES(password), es_admin = 1;
+        `,
+        [passwordHash]
+      );
+
+      console.log(">>> Usuario ADM creado o actualizado correctamente.");
+    } catch (e) {
+      console.log("Error creando usuario ADM: " + e.message);
+    }
+    // =====================================================
 
     res.send(
       "<h1>Mantenimiento Completado</h1><p>La base de datos ha sido actualizada: se han creado tablas faltantes, ajustado tipos de datos y añadido la columna <b>guardias_realizadas</b>.</p><p><a href='/admin'>Volver al Panel Admin</a></p>"
