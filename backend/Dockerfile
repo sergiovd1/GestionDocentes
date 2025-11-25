@@ -1,19 +1,21 @@
 FROM node:18-alpine
 
-# Establezco el directorio de trabajo dentro del contenedor
+# Creo directorio de trabajo
 WORKDIR /app
 
-# Copio los archivos de definición de dependencias
-COPY package*.json ./
+COPY backend/package*.json ./backend/
 
-# Instalo las dependencias
+# Entro a backend e instalo
+WORKDIR /app/backend
 RUN npm install --production
 
-# Copio el resto del código de la aplicación
+# Vuelvo a la raíz del contenedor
+WORKDIR /app
+
+# Copio TODO el proyecto
 COPY . .
 
-# El puerto que usa la app
 EXPOSE 3000
 
-# Comando para arrancar la aplicación
-CMD ["node", "server.js"]
+# Comando de arranque: entra a backend y ejecuta server.js
+CMD ["node", "backend/server.js"]
