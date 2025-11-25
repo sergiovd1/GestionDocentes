@@ -11,7 +11,7 @@ const getAdminPanel = async (req, res) => {
       SELECT a.*, d.nombre, d.tipo_funcionario, d.antiguedad_centro, d.nota_oposicion 
       FROM asunto_propio a 
       JOIN docente d ON a.docente_siglas = d.siglas 
-      WHERE a.estado = "pendiente" 
+      WHERE a.estado = 'pendiente' 
       ORDER BY 
         FIELD(d.tipo_funcionario, 'Carrera', 'En prácticas', 'Interino'),
         d.antiguedad_centro ASC,
