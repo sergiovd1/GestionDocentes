@@ -1,0 +1,6 @@
+Siglas;Nombre;Email;Departamento_id;Tipo;Antiguedad;Nota
+AUS;Profesor Ausente;aus@test.com;1;Interino;2024-01-01;5
+DEP;Candidato Depto;dep@test.com;1;Interino;2024-01-01;5
+GRU;Candidato Grupo;gru@test.com;2;Interino;2024-01-01;5
+LIB;Candidato Libre;lib@test.com;2;Interino;2024-01-01;5
+OCU;Profesor Ocupado;ocu@test.com;1;Interino;2024-01-01;5
