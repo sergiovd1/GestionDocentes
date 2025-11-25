@@ -106,6 +106,41 @@ app.get("/fix-db", async (req, res) => {
   }
 });
 
+app.get("/init-admin", async (req, res) => {
+  const bcrypt = require("bcrypt");
+  try {
+    const hash = await bcrypt.hash("1234", 10);
+
+    // Aseguramos que exista el departamento 1 (General) para no dar error
+    await pool.query(
+      `INSERT IGNORE INTO departamento (id, nombre) VALUES (1, 'General')`
+    );
+
+    // Insertamos el Admin
+    await pool.query(
+      `
+            INSERT INTO docente (siglas, codigo, nombre, email, password, es_admin, departamento_id, tipo_funcionario, temp_password)
+            VALUES ('ADM', 'ADM', 'Super Admin', 'admin@admin.com', ?, 1, 1, 'Carrera', 0)
+            ON DUPLICATE KEY UPDATE password = VALUES(password), es_admin = 1
+        `,
+      [hash]
+    );
+
+    res.send(`
+            <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1 style="color: green;">¡Administrador Creado!</h1>
+                <p>Ya puedes iniciar sesión con:</p>
+                <p>Usuario: <b>ADM</b></p>
+                <p>Contraseña: <b>1234</b></p>
+                <br>
+                <a href="/login" style="padding: 10px 20px; background: #4f46e5; color: white; text-decoration: none; border-radius: 5px;">Ir al Login</a>
+            </div>
+        `);
+  } catch (e) {
+    res.send("Error creando admin: " + e.message);
+  }
+});
+
 // ================= ARRANQUE =================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
