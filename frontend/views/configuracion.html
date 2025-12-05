@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración del Sistema</title>
+    <link rel="icon" type="image/jpeg" href="/img/logo-admin.jpg">
+
+    <link rel="shortcut icon" type="image/jpeg" href="/img/logo-admin.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, boxShadow: { '3xl': '0 35px 60px -12px rgba(0,0,0,0.35)' } } }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        .glass-card { @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-3xl shadow-3xl p-6 md:p-8 transition-all duration-500; }
+    .gradient-btn { @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 active:scale-95; }
+    .input-glass { @apply w-full px-4 py-3 rounded-xl border border-white/30 bg-white/10 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-300/30 outline-none text-white placeholder-white/60 text-base; }
+    .checkbox-glass { @apply w-6 h-6 rounded border-white/30 bg-white/10 text-indigo-500 focus:ring-indigo-400 align-middle; }
+
+    /* Tabla Responsiva */
+    @media (max-width: 768px) {
+      .responsive-table thead { display: none; }
+      .responsive-table tbody { display: flex; flex-direction: column; gap: 1rem; }
+      .responsive-table tr { @apply bg-black/20 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 shadow-lg; }
+      .responsive-table td { @apply flex justify-between items-center p-0 border-b border-white/5 pb-2 last:border-0 last:pb-0; }
+      .responsive-table td::before { content: attr(data-label); @apply font-bold text-xs uppercase tracking-wider text-white/60; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 p-4 md:p-8 text-white">
+
+    <!-- Header -->
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="flex items-center gap-4 w-full md:w-auto">
+            <a href="/admin" class="bg-white/10 p-3 rounded-full hover:bg-white/20 transition shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <h1 class="text-2xl md:text-3xl font-black truncate">Configuración del Sistema</h1>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- COLUMNA IZQUIERDA: AJUSTES Y CREACIÓN -->
+        <div class="flex flex-col gap-8 lg:col-span-1 order-2 lg:order-1">
+
+            <!-- 1. AJUSTES GENERALES (CSV Profesores y Límite Asuntos) -->
+            <div class="glass-card">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-2 border-b border-white/20 pb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-300" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Ajustes del Curso
+                </h2>
+
+                <!-- Carga de Profesores CSV -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-bold block opacity-80">Carga Masiva Docentes (CSV)</label>
+                        <!-- BOTÓN AYUDA CSV -->
+                        <button type="button" onclick="toggleCsvHelp()"
+                            class="text-xs text-indigo-200 hover:text-white flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg transition cursor-pointer border border-white/20">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Ver formato
+                        </button>
+                    </div>
+
+                    <form action="/admin/cargar-profesores" method="post" enctype="multipart/form-data"
+                        class="flex gap-2">
+                        <input type="file" name="csv" required class="input-glass text-sm !p-2">
+                        <button class="bg-white/10 hover:bg-white/20 border border-white/30 p-2 rounded-xl transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                        </button>
+                    </form>
+                    <p class="text-xs opacity-50 mt-1">Esto enviará emails con claves a todos.</p>
+                </div>
+
+                <!-- Límite Asuntos Propios -->
+                <form action="/admin/configurar-limite" method="post">
+                    <label class="text-sm font-bold mb-2 block opacity-80">Máx. Asuntos Propios / Día</label>
+                    <div class="flex gap-2">
+                        <input type="number" name="limite" value="2" min="1" class="input-glass font-mono text-center">
+                        <button
+                            class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-4 rounded-xl transition shadow-lg">Guardar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. CREAR USUARIO MANUAL -->
+            <div class="glass-card h-fit">
+                <h2 class="text-xl font-bold mb-6 flex items-center gap-2 border-b border-white/20 pb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    Alta Manual
+                </h2>
+
+                <form action="/admin/crear-usuario" method="post" class="space-y-4">
+                    <div><label class="text-xs font-bold uppercase opacity-60">Siglas</label><input name="siglas"
+                            placeholder="Ej: JPER" required class="input-glass mt-1 uppercase"></div>
+                    <div><label class="text-xs font-bold uppercase opacity-60">Nombre</label><input name="nombre"
+                            placeholder="Juan Pérez" required class="input-glass mt-1"></div>
+                    <div><label class="text-xs font-bold uppercase opacity-60">Email</label><input type="email"
+                            name="email" placeholder="juan@centro.es" required class="input-glass mt-1"></div>
+                    <div><label class="text-xs font-bold uppercase opacity-60">Contraseña</label><input type="password"
+                            name="password" placeholder="******" required class="input-glass mt-1"></div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold uppercase opacity-60">Dpto.</label>
+                            <select name="departamento_id"
+                                class="input-glass mt-1 cursor-pointer [&>option]:text-black">
+                                <option value="1">General</option>
+                                <% departamentos.forEach(d=> { %>
+                                    <option value="<%= d.id %>">
+                                        <%= d.nombre %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold uppercase opacity-60">Tipo</label>
+                            <select name="tipo" class="input-glass mt-1 cursor-pointer [&>option]:text-black">
+                                <option value="Interino">Interino</option>
+                                <option value="Carrera">Carrera</option>
+                                <option value="En prácticas">En prácticas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10 transition cursor-pointer mt-2">
+                        <input type="checkbox" name="es_admin" id="chk_admin" class="checkbox-glass">
+                        <label for="chk_admin" class="cursor-pointer select-none font-medium text-sm">¿Es
+                            Administrador?</label>
+                    </div>
+
+                    <button class="gradient-btn w-full mt-4">Crear Usuario</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: LISTADO DE USUARIOS -->
+        <div class="glass-card lg:col-span-2 order-1 lg:order-2 flex flex-col h-full max-h-[800px]">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+                <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Listado de Docentes
+                </h2>
+                <span class="bg-white/20 px-4 py-1 rounded-full text-sm font-bold whitespace-nowrap">
+                    <%= docentes.length %> Usuarios
+                </span>
+            </div>
+
+            <div class="overflow-y-auto pr-2 custom-scroll flex-grow">
+                <table class="w-full text-left border-collapse responsive-table">
+                    <thead class="bg-white/10 sticky top-0 backdrop-blur-md z-10">
+                        <tr>
+                            <th class="p-4 rounded-tl-xl">Siglas</th>
+                            <th class="p-4">Nombre</th>
+                            <th class="p-4">Tipo</th>
+                            <th class="p-4">Rol</th>
+                            <th class="p-4 rounded-tr-xl text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="md:divide-y md:divide-white/10">
+                        <% docentes.forEach(d=> { %>
+                            <tr class="hover:bg-white/5 transition duration-200">
+                                <td class="p-4 font-mono font-bold text-indigo-300 text-lg md:text-base"
+                                    data-label="Siglas">
+                                    <%= d.siglas %>
+                                </td>
+                                <td class="p-4 font-medium" data-label="Nombre">
+                                    <%= d.nombre %>
+                                </td>
+                                <td class="p-4 text-sm opacity-80" data-label="Tipo">
+                                    <%= d.tipo_funcionario %>
+                                </td>
+                                <td class="p-4" data-label="Rol">
+                                    <% if(d.es_admin) { %>
+                                        <span
+                                            class="bg-purple-500/50 px-3 py-1 rounded-lg text-xs font-bold border border-purple-400/50 tracking-wider">ADMIN</span>
+                                        <% } else { %>
+                                            <span
+                                                class="bg-blue-500/20 px-3 py-1 rounded-lg text-xs font-bold border border-blue-400/30 tracking-wider">DOCENTE</span>
+                                            <% } %>
+                                </td>
+                                <td class="p-4 md:text-right" data-label="Acción">
+                                    <% if (d.id !==user.id) { %>
+                                        <form action="/admin/borrar-usuario/<%= d.id %>" method="post"
+                                            onsubmit="return confirm('¿Seguro que quieres borrar a <%= d.nombre %>?');"
+                                            class="flex md:justify-end w-full">
+                                            <input type="hidden" name="siglas_borrar" value="<%= d.siglas %>">
+                                            <button
+                                                class="w-full md:w-auto flex items-center justify-center gap-2 text-red-200 bg-red-500/20 hover:bg-red-500 hover:text-white p-2 px-4 md:px-2 rounded-xl transition border border-red-500/30">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span class="md:hidden font-bold">Eliminar</span>
+                                            </button>
+                                        </form>
+                                        <% } else { %>
+                                            <span class="text-xs opacity-50 italic bg-white/5 px-3 py-1 rounded-full">Tu
+                                                usuario</span>
+                                            <% } %>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL AYUDA CSV -->
+    <div id="csvHelpModal"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="glass-card max-w-lg w-full relative transform scale-95 transition-transform duration-300">
+            <button onclick="toggleCsvHelp()" class="absolute top-4 right-4 text-white/50 hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Formato CSV Requerido
+            </h3>
+
+            <p class="mb-4 text-sm text-white/80">El archivo debe usar <strong>punto y coma (;)</strong> como separador.
+                La primera fila es para encabezados.</p>
+
+            <div
+                class="bg-black/40 p-4 rounded-xl font-mono text-xs text-green-300 overflow-x-auto border border-white/10 mb-4 shadow-inner">
+                Siglas;Nombre;Email;Departamento_id;Tipo;Antiguedad;Nota<br>
+                JPER;Juan Perez;juan@email.com;1;Interino;2020-09-01;8.5<br>
+                AMAR;Ana Maria;ana@email.com;2;Carrera;2018-09-01;9.2
+            </div>
+
+            <div class="text-xs text-white/70 space-y-2 bg-white/5 p-3 rounded-lg">
+                <p>• <strong>Siglas:</strong> Código único (usuario para login).</p>
+                <p>• <strong>Tipo:</strong> Carrera, Interino, En prácticas.</p>
+                <p>• <strong>Antigüedad:</strong> Formato AAAA-MM-DD.</p>
+                <p>• <strong>Nota:</strong> Usar punto (.) para decimales.</p>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button onclick="toggleCsvHelp()" class="gradient-btn py-2 text-sm">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const msg = urlParams.get('msg');
+        if (msg) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 right-5 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce z-50";
+            toast.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> ${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // Función para el modal de ayuda
+        function toggleCsvHelp() {
+            const modal = document.getElementById('csvHelpModal');
+            const card = modal.querySelector('.glass-card');
+
+            if (modal.classList.contains('hidden')) {
+                // Abrir
+                modal.classList.remove('hidden');
+                // Pequeño delay para permitir la transición de opacidad
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                }, 10);
+            } else {
+                // Cerrar
+                modal.classList.add('opacity-0');
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+    </script>
+</body>
+
+</html>

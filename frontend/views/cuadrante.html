@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuadrante de Guardias</title>
+  <link rel="icon" type="image/jpeg" href="/img/logo-admin.jpg">
+
+  <link rel="shortcut icon" type="image/jpeg" href="/img/logo-admin.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, boxShadow: { '3xl': '0 35px 60px -12px rgba(0,0,0,0.35)' } } }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    /* Estilos Pantalla */
+    body {
+      @apply min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 p-4 md:p-8 text-white font-sans;
+    }
+    .glass-card {
+      @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-3xl shadow-3xl p-6 md:p-8;
+    }
+    .gradient-btn {
+      @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold px-6 py-2 rounded-xl shadow-lg hover:scale-105 transition-all;
+    }
+    .input-glass {
+      @apply w-full px-3 py-2 rounded-lg border border-white/30 bg-white/10 focus:border-indigo-400 outline-none text-white text-sm;
+    }
+
+    /* ESTILOS DE IMPRESIÓN */
+    @media print {
+      body { background: white !important; color: black !important; padding: 0 !important; }
+      .no-print, nav, .gradient-btn, form { display: none !important; }
+      .glass-card { background: none !important; border: none !important; box-shadow: none !important; color: black !important; padding: 0 !important; }
+      table { width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; display: table !important; }
+      thead { display: table-header-group !important; }
+      tbody { display: table-row-group !important; }
+      tr { display: table-row !important; background: none !important; border: none !important; }
+      th, td { border: 1px solid #000 !important; padding: 5px !important; color: black !important; display: table-cell !important; }
+      td::before { display: none !important; }
+      .print-only-obs { display: block !important; }
+      .screen-only-input { display: none !important; }
+      h1 { color: black !important; text-align: center; font-size: 18pt; margin-bottom: 20px; }
+    }
+
+    .print-only-obs { display: none; }
+
+    /* TÉCNICA DE TABLA RESPONSIVA PARA MÓVIL */
+    @media screen and (max-width: 768px) {
+      .responsive-table thead { display: none; }
+      .responsive-table tbody { display: flex; flex-direction: column; gap: 1rem; }
+      .responsive-table tr {
+        @apply bg-black/20 border border-white/10 rounded-2xl p-5 flex flex-col gap-3 shadow-lg;
+      }
+      .responsive-table td {
+        @apply flex justify-between items-center p-0 border-b border-white/5 pb-2 last:border-0 last:pb-0;
+        text-align: right;
+      }
+      .responsive-table td::before {
+        content: attr(data-label);
+        @apply font-bold text-xs uppercase tracking-wider text-white/60 text-left mr-4;
+      }
+      .responsive-table td form { width: 60%; justify-content: flex-end; }
+      .responsive-table td .input-glass { text-align: right; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header / Navegación -->
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4 no-print">
+    <div class="flex items-center gap-4 w-full md:w-auto">
+      <a href="<%= user.es_admin ? '/admin' : '/docente' %>"
+        class="bg-white/10 p-3 rounded-full hover:bg-white/20 transition shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </a>
+      <h1 class="text-2xl md:text-3xl font-black truncate">Cuadrante Diario</h1>
+    </div>
+    <div class="flex gap-3 w-full md:w-auto justify-end">
+      <form action="/cuadrante" method="get" class="flex gap-2">
+        <input type="date" name="fecha" value="<%= fecha %>" class="input-glass [color-scheme:dark]"
+          onchange="this.form.submit()">
+      </form>
+      <button onclick="window.print()"
+        class="bg-white text-indigo-900 font-bold px-4 md:px-6 py-2 rounded-xl hover:bg-gray-100 transition flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        <span class="hidden md:inline">Imprimir</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="glass-card max-w-7xl mx-auto overflow-hidden">
+    <h2
+      class="text-xl md:text-2xl font-bold mb-6 text-center print:block border-b border-white/10 md:border-0 pb-4 md:pb-0">
+      Guardias del <%= new Date(fecha).toLocaleDateString('es-ES', { weekday: 'long' , year: 'numeric' , month: 'long' ,
+        day: 'numeric' }).toUpperCase() %>
+    </h2>
+
+    <% if (guardias.length===0) { %>
+      <div class="text-center py-10 opacity-70">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-xl">No hay guardias registradas para hoy.</p>
+      </div>
+      <% } else { %>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse responsive-table">
+            <thead>
+              <tr class="border-b border-white/20 text-white/70 uppercase text-sm">
+                <th class="p-4 w-20">Hora</th>
+                <th class="p-4">Prof. Ausente</th>
+                <th class="p-4">Sustituto</th>
+                <th class="p-4">Grupo/Aula</th>
+                <th class="p-4 text-center">Estado</th>
+                <th class="p-4">Observaciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10">
+              <% guardias.forEach(g=> { %>
+                <tr class="hover:bg-white/5 transition duration-200">
+
+                  <!-- Hora -->
+                  <td class="p-4" data-label="Hora">
+                    <span class="font-bold font-mono text-lg">
+                      <%= g.hora_real || g.hueco %>
+                    </span>
+                  </td>
+
+                  <!-- Ausente -->
+                  <td class="p-4" data-label="Ausente">
+                    <div class="text-right md:text-left">
+                      <div class="font-bold text-pink-300">
+                        <%= g.ausente_siglas %>
+                      </div>
+                      <div class="text-xs opacity-70">
+                        <%= g.ausente_nom || '...' %>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Sustituto -->
+                  <td class="p-4" data-label="Sustituto">
+                    <div class="text-right md:text-left">
+                      <% if(g.cubre_siglas==='SIN CUBRIR' ) { %>
+                        <span class="text-red-400 font-bold bg-red-500/20 px-2 py-1 rounded text-xs md:text-base">SIN
+                          CUBRIR</span>
+                        <% } else { %>
+                          <div class="font-bold text-green-300">
+                            <%= g.cubre_siglas %>
+                          </div>
+                          <div class="text-xs opacity-70">
+                            <%= g.cubre_nom %>
+                          </div>
+                          <% } %>
+                    </div>
+                  </td>
+
+                  <!-- Grupo / Aula -->
+                  <td class="p-4" data-label="Clase">
+                    <div class="text-right md:text-left">
+                      <div class="font-bold">
+                        <%= g.grupo %>
+                      </div>
+                      <div class="text-xs bg-white/20 px-2 py-0.5 rounded inline-block mt-1">
+                        <%= g.aula %>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Estado (Editable solo para Admin) -->
+                  <td class="p-4 text-center md:text-left" data-label="Estado">
+                    <% if (user.es_admin) { %>
+                      <!-- FORMULARIO ADMIN -->
+                      <form action="/actualizar-guardia/<%= g.id %>" method="post" id="form-<%= g.id %>"
+                        class="screen-only-input inline-block w-full md:w-auto">
+                        <select name="realizada" onchange="document.getElementById('form-<%= g.id %>').submit()"
+                          class="w-full md:w-auto px-2 py-1 rounded text-xs font-bold cursor-pointer text-center md:text-left appearance-none md:appearance-auto
+                                            <%= g.realizada == 1 ? 'bg-green-500 text-white' : (g.realizada == 0 ? 'bg-red-500 text-white' : 'bg-yellow-500 text-black') %>">
+                          <option value="" <%=g.realizada==null ? 'selected' : '' %>>PENDIENTE</option>
+                          <option value="1" <%=g.realizada==1 ? 'selected' : '' %>>REALIZADA</option>
+                          <option value="0" <%=g.realizada==0 ? 'selected' : '' %>>NO REALIZADA</option>
+                        </select>
+                        <input type="hidden" name="observaciones" value="<%= g.observaciones %>">
+                      </form>
+                      <% } else { %>
+                        <!-- VISTA DOCENTE (Solo lectura) -->
+                        <span
+                          class="inline-block px-2 py-1 rounded text-xs font-bold text-center
+                                        <%= g.realizada == 1 ? 'bg-green-500/20 text-green-300 border border-green-500/30' : (g.realizada == 0 ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30') %>">
+                          <%= g.realizada==1 ? 'REALIZADA' : (g.realizada==0 ? 'NO REALIZADA' : 'PENDIENTE' ) %>
+                        </span>
+                        <% } %>
+
+                          <!-- Texto estático para impresión -->
+                          <span class="print-only-obs">
+                            <%= g.realizada==1 ? 'SÍ' : (g.realizada==0 ? 'NO' : 'Pendiente' ) %>
+                          </span>
+                  </td>
+
+                  <!-- Observaciones (Editable solo para Admin) -->
+                  <td class="p-4" data-label="Notas">
+                    <% if (user.es_admin) { %>
+                      <form action="/actualizar-guardia/<%= g.id %>" method="post"
+                        class="screen-only-input flex gap-2 justify-end md:justify-start w-full">
+                        <input type="hidden" name="realizada" value="<%= g.realizada %>">
+                        <input type="text" name="observaciones" value="<%= g.observaciones %>" placeholder="Nota..."
+                          class="input-glass py-1 px-2 text-xs md:text-sm text-right md:text-left">
+                        <button class="bg-white/10 hover:bg-white/20 p-1 rounded shrink-0">💾</button>
+                      </form>
+                      <% } else { %>
+                        <span class="text-sm text-white/70 text-right md:text-left block">
+                          <%= g.observaciones || '-' %>
+                        </span>
+                        <% } %>
+                          <span class="print-only-obs text-sm">
+                            <%= g.observaciones %>
+                          </span>
+                  </td>
+
+                </tr>
+                <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% } %>
+  </div>
+
+</body>
+
+</html>

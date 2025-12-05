@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Docente</title>
+  <link rel="icon" type="image/jpeg" href="/img/logo-admin.jpg">
+
+  <link rel="shortcut icon" type="image/jpeg" href="/img/logo-admin.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          boxShadow: { '3xl': '0 35px 60px -12px rgba(0,0,0,0.35)' }
+        }
+      }
+    }
+
+    // Código de la navbar
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuBtn = document.getElementById("menu-btn");
+      const menu = document.getElementById("menu");
+
+      menuBtn.addEventListener("click", () => {
+        if (menu.classList.contains("max-h-0")) {
+          menu.classList.remove("max-h-0");
+          menu.classList.add("max-h-80", "py-4", "px-6");
+        } else {
+          menu.classList.remove("max-h-80", "py-4", "px-6");
+          menu.classList.add("max-h-0");
+        }
+      });
+    });
+  </script>
+  <style type="text/tailwindcss">
+    .glass-card {
+      @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-3xl shadow-3xl p-8 transition-all duration-500;
+    }
+    .gradient-btn {
+      @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 tracking-wide;
+    }
+    .input-glass {
+      @apply w-full px-5 py-4 rounded-xl border border-white/30 bg-white/10 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-300/30 outline-none transition-all duration-300 text-lg font-medium placeholder-white/60 text-white;
+    }
+    /* Estilo para input tipo fecha en navegadores oscuros */
+    input[type="date"] {
+        color-scheme: dark;
+    }
+    /* Scrollbar personalizado */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.5); border-radius: 10px; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 p-4 md:p-8 text-white">
+
+  <nav
+    class="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg px-6 py-4 flex flex-wrap items-center justify-between">
+    <a href="/" class="flex items-center gap-4">
+      <div
+        class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30 shadow-inner">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+      <span class="text-xl md:text-2xl font-black tracking-tight">Panel Docente</span>
+    </a>
+
+    <button id="menu-btn" class="md:hidden text-white p-2 rounded-lg hover:bg-white/20 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="hidden md:flex items-center gap-4">
+      <a href="/horario"
+        class="px-6 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/30 transition font-medium <%= !tieneHorario ? 'opacity-50 pointer-events-none' : '' %>">
+        Consultar Horario
+      </a>
+      <a href="/logout"
+        class="px-6 py-2 rounded-xl bg-red-500/80 hover:bg-red-600/80 transition font-bold shadow-lg">Cerrar Sesión</a>
+    </div>
+
+    <div id="menu"
+      class="absolute top-full left-0 w-full bg-indigo-900/95 backdrop-blur-lg border-t border-white/20 overflow-hidden max-h-0 transition-all duration-500 ease-in-out flex flex-col items-center gap-4 md:hidden z-50 shadow-2xl">
+      <a href="/horario"
+        class="w-full text-center py-3 hover:bg-white/10 <%= !tieneHorario ? 'opacity-50 pointer-events-none' : '' %>">Consultar
+        Horario</a>
+      <a href="/logout" class="w-full text-center py-3 bg-red-500/20 text-red-200">Cerrar Sesión</a>
+    </div>
+  </nav>
+
+  <div class="pt-28 pb-10">
+    <div class="max-w-7xl mx-auto grid gap-8 md:grid-cols-2 items-start">
+
+      <div class="glass-card sticky top-32">
+        <div class="flex items-center gap-3 mb-6 border-b border-white/20 pb-4">
+          <div class="p-2 bg-pink-500/20 rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-pink-300" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold">Solicitar Día</h2>
+        </div>
+
+        <form action="/solicitar-asunto" method="post" class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium opacity-80 ml-1 mb-2">Selecciona la fecha</label>
+            <input type="date" name="fecha" required class="input-glass [color-scheme:dark]">
+            <p class="text-xs text-white/50 mt-2 ml-1">Se enviará una notificación al administrador para su aprobación.
+            </p>
+          </div>
+          <button class="gradient-btn w-full py-4 text-lg shadow-pink-500/30">Enviar Solicitud</button>
+        </form>
+      </div>
+
+      <div class="glass-card flex flex-col h-[600px]">
+        <div class="flex items-center justify-between gap-3 mb-6 border-b border-white/20 pb-4 flex-shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-500/20 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-300" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold">Mis Asuntos</h2>
+          </div>
+          <span class="bg-white/10 border border-white/20 px-3 py-1 rounded-full text-sm font-bold">
+            <%= asuntos.length %>
+          </span>
+        </div>
+
+        <% if (asuntos.length> 0) { %>
+          <div class="overflow-y-auto custom-scroll pr-2 space-y-4 flex-grow">
+            <% asuntos.forEach(a=> {
+              const fecha = new Date(a.fecha);
+              const fechaCorta =
+              `${fecha.getDate().toString().padStart(2,'0')}/${(fecha.getMonth()+1).toString().padStart(2,'0')}/${fecha.getFullYear()}`;
+
+              // Definir color y clase CSS (solo lógica JS aquí, NO HTML)
+              let statusColor = 'bg-orange-500/20 text-orange-200 border-orange-500/30';
+              if(a.estado === 'aprobado') {
+              statusColor = 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30';
+              } else if(a.estado === 'rechazado') {
+              statusColor = 'bg-red-500/20 text-red-200 border-red-500/30';
+              }
+              %>
+
+              <div class="bg-black/20 border border-white/10 rounded-2xl p-5 hover:bg-black/30 transition group">
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <p class="text-2xl font-bold text-white">
+                      <%= fechaCorta %>
+                    </p>
+                    <p class="text-xs opacity-60 mt-0.5">Fecha solicitada</p>
+                  </div>
+
+                  <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border <%= statusColor %>">
+                    <span class="text-sm font-bold uppercase tracking-wider">
+                      <%= a.estado %>
+                    </span>
+
+                    <% if (a.estado==='aprobado' ) { %>
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <% } else if (a.estado==='rechazado' ) { %>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        <% } else { %>
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <% } %>
+                  </div>
+                </div>
+
+                <% if (a.estado==='aprobado' ) { %>
+                  <div class="mt-4 pt-4 border-t border-white/10">
+                    <% if (a.material_pdf) { %>
+                      <div
+                        class="flex items-center gap-2 text-emerald-300 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                          stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-sm font-medium">Material subido correctamente</span>
+                      </div>
+                      <% } else { %>
+                        <p class="text-sm mb-2 font-medium text-indigo-200">ℹ️ Sube el material para la guardia:</p>
+                        <form action="/subir-material/<%= a.id %>" method="post" enctype="multipart/form-data"
+                          class="flex gap-2">
+                          <label class="flex-grow cursor-pointer">
+                            <div
+                              class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-sm text-white/70 hover:bg-white/20 transition truncate flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                              </svg>
+                              Seleccionar PDF...
+                            </div>
+                            <input type="file" name="pdf" accept="application/pdf" required class="hidden"
+                              onchange="this.previousElementSibling.firstElementChild.innerText = this.files[0].name">
+                          </label>
+                          <button
+                            class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-sm transition shadow-lg">
+                            Subir
+                          </button>
+                        </form>
+                        <% } %>
+                  </div>
+                  <% } %>
+              </div>
+
+              <% }) %>
+          </div>
+          <% } else { %>
+            <div class="flex flex-col items-center justify-center h-full text-white/50 pb-10">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 opacity-30" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p class="text-lg">Aún no has solicitado días</p>
+            </div>
+            <% } %>
+      </div>
+
+      <div class="col-span-full mt-4">
+        <a href="/cuadrante"
+          class="glass-card hover:bg-white/30 transition group flex items-center justify-between cursor-pointer !p-6">
+          <div class="flex items-center gap-4">
+            <div class="bg-purple-500 p-3 rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Consultar Cuadrante</h3>
+              <p class="text-sm opacity-70">Ver guardias y ausencias del centro</p>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 opacity-50 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Gestión de Docentes</title>
+  <link rel="icon" type="image/jpeg" href="/img/logo-admin.jpg">
+
+  <link rel="shortcut icon" type="image/jpeg" href="/img/logo-admin.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          boxShadow: { '3xl': '0 35px 60px -12px rgba(0,0,0,0.35)' },
+          animation: { 'fade-in': 'fadeIn 0.5s ease-out' },
+          keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    body {
+      @apply min-h-screen flex items-center justify-center px-4 relative overflow-hidden;
+      background: linear-gradient(135deg, #1e1b4b, #4c1d95, #831843); /* Fondo un poco más oscuro para resaltar el glass */
+    }
+    
+    /* Fondo animado sutil */
+    .background-gradient {
+      @apply absolute inset-0 z-0;
+      background: linear-gradient(135deg, #4f46e5, #a855f7, #ec4899);
+      opacity: 0.8;
+    }
+
+    .glass-card {
+      @apply relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-3xl p-8 md:p-12 max-w-md w-full z-10 animate-fade-in;
+    }
+    
+    .gradient-btn {
+      @apply w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg tracking-wide uppercase;
+    }
+    
+    .input-group {
+      @apply relative mb-4;
+    }
+    
+    .input-icon {
+      @apply absolute left-4 top-1/2 transform -translate-y-1/2 text-white/60 h-6 w-6;
+    }
+    
+    .input-glass {
+      @apply w-full pl-12 pr-4 py-4 rounded-xl border border-white/20 bg-white/5 focus:bg-white/10 focus:border-pink-400 focus:ring-2 focus:ring-pink-400/20 outline-none transition-all duration-300 text-white placeholder-white/40 text-lg;
+    }
+
+    .link-text {
+      @apply text-pink-200 hover:text-white transition-colors text-sm font-medium cursor-pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background-gradient"></div>
+
+  <img src="/img/instituto.png" alt="Instituto"
+    class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-overlay">
+
+  <div class="glass-card">
+
+    <div class="text-center mb-8">
+      <div class="inline-block p-1 rounded-full bg-gradient-to-tr from-indigo-400 to-pink-400 mb-4 shadow-lg">
+        <div class="bg-white/20 backdrop-blur-md rounded-full p-3">
+          <img src="/img/logo.png" alt="Logo" class="w-16 h-16 object-contain drop-shadow-md">
+        </div>
+      </div>
+      <h1 class="text-3xl font-black text-white tracking-tight">Gestión Docente</h1>
+      <p class="text-white/60 text-sm mt-1">Accede a tu panel de control</p>
+    </div>
+
+    <div id="login-form">
+      <form action="/login" method="post" class="space-y-5">
+
+        <div class="input-group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <input type="text" name="siglas" placeholder="Usuario / Siglas" required autofocus class="input-glass">
+        </div>
+
+        <div class="input-group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <input type="password" name="password" placeholder="Contraseña" required class="input-glass">
+        </div>
+
+        <div class="flex justify-end">
+          <span onclick="toggleForms()" class="link-text">¿Olvidaste tu contraseña?</span>
+        </div>
+
+        <button type="submit" class="gradient-btn">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <% if (typeof error !=='undefined' && error) { %>
+        <div
+          class="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-100 text-sm text-center font-medium animate-pulse">
+          <%= error %>
+        </div>
+        <% } %>
+
+          <div class="mt-6 pt-6 border-t border-white/10 text-center">
+            <p class="text-white/40 text-xs">Ejemplo: <strong class="text-white/80">SER / 1111</strong></p>
+          </div>
+    </div>
+
+    <div id="recover-form" class="hidden">
+      <form action="/forgot-password" method="post" class="space-y-5">
+        <div class="text-center mb-6">
+          <h3 class="text-xl font-bold text-white">Recuperar Acceso</h3>
+          <p class="text-white/60 text-sm">Te enviaremos una clave temporal</p>
+        </div>
+
+        <div class="input-group">
+          <svg xmlns="http://www.w3.org/2000/svg" class="input-icon" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <input type="email" name="email" placeholder="Correo electrónico" required class="input-glass">
+        </div>
+
+        <button type="submit" class="gradient-btn">
+          Enviar Correo
+        </button>
+
+        <div class="text-center mt-4">
+          <span onclick="toggleForms()" class="link-text flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver al Login
+          </span>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleForms() {
+      const loginForm = document.getElementById('login-form');
+      const recoverForm = document.getElementById('recover-form');
+
+      // Animación simple de desvanecimiento
+      if (loginForm.classList.contains('hidden')) {
+        recoverForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        loginForm.classList.add('animate-fade-in');
+      } else {
+        loginForm.classList.add('hidden');
+        recoverForm.classList.remove('hidden');
+        recoverForm.classList.add('animate-fade-in');
+      }
+    }
+  </script>
+</body>
+
+</html>

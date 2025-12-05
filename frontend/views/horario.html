@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horario Docente</title>
+  <link rel="icon" type="image/jpeg" href="/img/logo-admin.jpg">
+
+  <link rel="shortcut icon" type="image/jpeg" href="/img/logo-admin.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, boxShadow: { '3xl': '0 35px 60px -12px rgba(0,0,0,0.35)' } } }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    .glass-card { @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-3xl shadow-3xl p-6 transition-all duration-500; }
+    .gradient-btn { @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all; }
+    .input-glass { @apply w-full px-4 py-2 rounded-xl border border-white/30 bg-white/10 focus:border-indigo-400 outline-none text-white placeholder-white/50 text-sm; }
+    
+    /* CORRECCIÓN: Quitamos 'group' de aquí */
+    .cell-card { @apply rounded-xl p-2 text-xs shadow-lg mb-2 border backdrop-blur-sm relative min-h-[60px]; }
+    
+    /* Colores por tipo de hora */
+    .type-LEC { @apply bg-blue-500/40 border-blue-300/50 text-white; }
+    .type-GUARDIA { @apply bg-red-500/50 border-red-300/50 text-white font-bold; }
+    .type-CHL { @apply bg-purple-500/40 border-purple-300/50 text-white; }
+    .type-default { @apply bg-white/20 border-white/30 text-white; }
+    
+    option { @apply text-black bg-white; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 p-4 md:p-8 text-white">
+
+  <!-- Header -->
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <div class="flex items-center gap-4">
+      <a href="<%= user.es_admin ? '/admin' : '/docente' %>"
+        class="bg-white/10 p-3 rounded-full hover:bg-white/20 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </a>
+      <h1 class="text-3xl font-black">Consultar Horario</h1>
+    </div>
+    <a href="/logout"
+      class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl font-bold text-sm text-center w-full md:w-auto">Cerrar
+      Sesión</a>
+  </div>
+
+  <!-- SECCIÓN ADMIN: MODIFICAR DATOS (UC8) -->
+  <% if (user.es_admin) { %>
+    <div class="max-w-7xl mx-auto glass-card mb-6 !p-4">
+      <details>
+        <summary
+          class="font-bold cursor-pointer flex items-center gap-2 text-indigo-200 hover:text-white transition select-none">
+          <div class="bg-white/10 p-1 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          Añadir Clase Manualmente
+        </summary>
+        <form action="/admin/anadir-clase" method="post"
+          class="grid grid-cols-2 md:grid-cols-7 gap-3 mt-4 items-end animate-fade-in">
+          <div class="col-span-2 md:col-span-1">
+            <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Docente</label>
+            <input name="docente" placeholder="Siglas" required class="input-glass">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Día</label>
+            <select name="dia" class="input-glass cursor-pointer">
+              <% diasCodigos.forEach(d=> { %>
+                <option value="<%= d %>">
+                  <%= d %>
+                </option>
+                <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Hora</label>
+            <select name="hueco" class="input-glass cursor-pointer">
+              <% huecos.forEach(h=> { %>
+                <option value="<%= h %>">H<%= h %>
+                </option>
+                <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Grupo</label>
+            <input name="grupo" placeholder="Grupo" class="input-glass">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Aula</label>
+            <input name="aula" placeholder="Aula" class="input-glass">
+          </div>
+          <div>
+            <label class="text-[10px] uppercase font-bold opacity-60 ml-1">Tipo</label>
+            <select name="tipo" class="input-glass cursor-pointer">
+              <option value="LEC">Lectiva</option>
+              <option value="GUARDIA">Guardia</option>
+              <option value="CHL">CHL</option>
+            </select>
+          </div>
+          <div class="col-span-2 md:col-span-1">
+            <button class="gradient-btn w-full text-xs h-[38px]">Añadir</button>
+          </div>
+        </form>
+      </details>
+    </div>
+    <% } %>
+
+      <!-- BARRA DE FILTROS -->
+      <div class="max-w-7xl mx-auto glass-card mb-6 !p-4">
+        <form action="/horario" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+
+          <!-- Filtro Docente -->
+          <% if (user.es_admin) { %>
+            <div>
+              <label class="block text-xs font-bold ml-1 mb-1 text-indigo-200">Docente</label>
+              <select name="docente" class="input-glass cursor-pointer">
+                <option value="">- Todos -</option>
+                <% profes.forEach(p=> { %>
+                  <option value="<%= p.docente %>" <%=query.docente===p.docente ? 'selected' : '' %>>
+                    <%= p.docente %>
+                  </option>
+                  <% }) %>
+              </select>
+            </div>
+            <% } else { %>
+              <!-- Info Docente Fijo -->
+              <div class="flex items-center gap-3 pb-2 border-b border-white/10 md:border-0">
+                <div
+                  class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-lg shadow-lg border border-white/20">
+                  <%= user.siglas.charAt(0) %>
+                </div>
+                <div>
+                  <span class="text-[10px] uppercase font-bold opacity-60 block">Tu Horario</span>
+                  <span class="text-xl font-bold tracking-wide">
+                    <%= user.siglas %>
+                  </span>
+                </div>
+              </div>
+              <% } %>
+
+                <!-- Filtro Grupo -->
+                <div>
+                  <label class="block text-xs font-bold ml-1 mb-1 text-indigo-200">Grupo</label>
+                  <select name="grupo" class="input-glass cursor-pointer">
+                    <option value="">- Todos -</option>
+                    <% grupos.forEach(g=> { %>
+                      <option value="<%= g.grupo %>" <%=query.grupo===g.grupo ? 'selected' : '' %>>
+                        <%= g.grupo %>
+                      </option>
+                      <% }) %>
+                  </select>
+                </div>
+
+                <!-- Filtro Aula -->
+                <div>
+                  <label class="block text-xs font-bold ml-1 mb-1 text-indigo-200">Aula</label>
+                  <select name="aula" class="input-glass cursor-pointer">
+                    <option value="">- Todos -</option>
+                    <% aulas.forEach(a=> { %>
+                      <option value="<%= a.aula %>" <%=query.aula===a.aula ? 'selected' : '' %>>
+                        <%= a.aula %>
+                      </option>
+                      <% }) %>
+                  </select>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-2">
+                  <button class="gradient-btn flex-1 shadow-indigo-500/30">Filtrar</button>
+                  <a href="/horario"
+                    class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl flex items-center justify-center transition border border-white/20"
+                    title="Limpiar filtros">
+                    ✕
+                  </a>
+                </div>
+        </form>
+      </div>
+
+      <!-- GRID HORARIO -->
+      <div class="max-w-7xl mx-auto glass-card !p-0 overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse min-w-[800px]">
+            <thead>
+              <tr class="bg-black/20 text-white text-left border-b border-white/10">
+                <th class="p-4 w-20 text-center font-bold border-r border-white/10 bg-white/5">Hora</th>
+                <th class="p-4 w-1/5 font-bold text-center">Lunes</th>
+                <th class="p-4 w-1/5 font-bold text-center">Martes</th>
+                <th class="p-4 w-1/5 font-bold text-center">Miércoles</th>
+                <th class="p-4 w-1/5 font-bold text-center">Jueves</th>
+                <th class="p-4 w-1/5 font-bold text-center">Viernes</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10">
+
+              <% huecos.forEach((h, index)=> { %>
+                <tr class="hover:bg-white/5 transition-colors">
+                  <!-- Columna HORA -->
+                  <td class="p-2 text-center border-r border-white/10 bg-white/5">
+                    <span class="text-xl font-black block text-white/90">
+                      <%= h %>
+                    </span>
+                    <span class="text-[10px] font-medium text-white/50 block mt-1">
+                      <%= horasReales[index] || '' %>
+                    </span>
+                  </td>
+
+                  <!-- Columnas DÍAS -->
+                  <% diasCodigos.forEach(dia=> { %>
+                    <td class="p-2 border-r border-white/10 align-top h-32 min-w-[150px] relative">
+                      <% const clases=horario.filter(item=> item.hueco == h && item.dia_semana == dia);
+                        %>
+
+                        <% if (clases.length> 0) { %>
+                          <% clases.forEach(c=> {
+                            let tipoClass = 'type-default';
+                            if(c.tipo === 'LEC') tipoClass = 'type-LEC';
+                            else if(c.tipo === 'GUARDIA') tipoClass = 'type-GUARDIA';
+                            else if(c.tipo === 'CHL') tipoClass = 'type-CHL';
+                            %>
+                            <!-- Aquí se mantiene la clase 'group' en el HTML, que es donde debe estar -->
+                            <div class="cell-card <%= tipoClass %> group">
+
+                              <!-- BOTÓN BORRAR (Solo Admin) -->
+                              <% if (user.es_admin) { %>
+                                <form action="/admin/borrar-clase/<%= c.id %>" method="post"
+                                  onsubmit="return confirm('¿Borrar esta clase permanentemente?')"
+                                  class="absolute -top-2 -right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <button
+                                    class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-md hover:bg-red-600 hover:scale-110 transition font-bold border border-white/20">✕</button>
+                                </form>
+                                <% } %>
+
+                                  <div class="flex justify-between items-start">
+                                    <span class="font-bold uppercase text-xs tracking-wide truncate pr-1"
+                                      title="<%= c.modulo %>">
+                                      <%= c.modulo || 'Actividad' %>
+                                    </span>
+
+                                    <% if(!query.aula && c.aula) { %>
+                                      <span
+                                        class="text-[9px] font-bold bg-black/30 px-1.5 py-0.5 rounded text-white/90 whitespace-nowrap">
+                                        <%= c.aula %>
+                                      </span>
+                                      <% } %>
+                                  </div>
+
+                                  <div class="mt-1.5 flex flex-col gap-0.5">
+                                    <% if(!query.grupo && c.grupo) { %>
+                                      <div class="text-[10px] opacity-90 font-medium truncate">
+                                        <%= c.grupo %>
+                                      </div>
+                                      <% } %>
+
+                                        <% if(user.es_admin && !query.docente) { %>
+                                          <div
+                                            class="text-[10px] italic opacity-70 border-t border-white/10 pt-1 mt-0.5 text-white/80">
+                                            <%= c.docente %>
+                                          </div>
+                                          <% } %>
+
+                                            <% if(c.tipo==='GUARDIA' ) { %>
+                                              <div
+                                                class="text-center text-[9px] uppercase tracking-widest bg-white/20 rounded py-0.5 font-bold mt-1">
+                                                GUARDIA
+                                              </div>
+                                              <% } %>
+                                  </div>
+                            </div>
+                            <% }) %>
+                              <% } %>
+                    </td>
+                    <% }) %>
+                </tr>
+                <% }) %>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+</body>
+
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin</title>
+  <link rel="icon" type="image/jpeg" href="/img/logo-admin.jpg">
+  <link rel="shortcut icon" type="image/jpeg" href="/img/logo-admin.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          boxShadow: { '3xl': '0 35px 60px -12px rgba(0,0,0,0.35)' }
+        }
+      }
+    }
+
+    // Código de la navbar
+    document.addEventListener("DOMContentLoaded", () => {
+      const menuBtn = document.getElementById("menu-btn");
+      const menu = document.getElementById("menu");
+
+      menuBtn.addEventListener("click", () => {
+        if (menu.classList.contains("max-h-0")) {
+          menu.classList.remove("max-h-0");
+          menu.classList.add("max-h-80", "py-4", "px-6");
+        } else {
+          menu.classList.remove("max-h-80", "py-4", "px-6");
+          menu.classList.add("max-h-0");
+        }
+      });
+    });
+  </script>
+  <style type="text/tailwindcss">
+    .glass-card {
+      @apply bg-white/20 backdrop-blur-lg border border-white/30 rounded-3xl shadow-3xl p-8 transition-all duration-500;
+    }
+    .gradient-btn {
+      @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 tracking-wide;
+    }
+    .input-glass {
+      @apply w-full px-5 py-3 rounded-xl border border-white/30 bg-white/10 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-300/30 outline-none transition-all duration-300 text-base font-medium placeholder-white/60 text-white;
+    }
+    
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.5); border-radius: 10px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.8); }
+    
+    input[type="date"] { color-scheme: dark; }
+    option { color: black; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-indigo-800 via-purple-800 to-pink-800 p-4 md:p-8 text-white">
+
+  <!-- NAVBAR -->
+  <nav
+    class="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg px-6 py-4 flex flex-wrap items-center justify-between">
+    <a href="/" class="flex items-center gap-4">
+      <div
+        class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30 shadow-inner">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      </div>
+      <span class="text-xl md:text-2xl font-black tracking-tight">Panel Admin</span>
+    </a>
+
+    <button id="menu-btn" class="md:hidden text-white p-2 rounded-lg hover:bg-white/20 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="hidden md:flex items-center gap-4">
+      <!-- BOTÓN CONSULTAR HORARIO (ESCRITORIO) -->
+      <!-- Cambios: href condicional, onclick con alerta, quitamos pointer-events-none y ponemos cursor-not-allowed -->
+      <a href="<%= tieneHorario ? '/horario' : '#' %>"
+        onclick="<%= !tieneHorario ? `alert('⚠️ Aviso del Sistema:\\n\\nNo se puede consultar el horario porque aún no se ha cargado ningún archivo CSV.\\n\\nPor favor, utiliza el panel de abajo para subir el Horario del Centro.'); return false;` : '' %>"
+        class="px-6 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/30 transition font-medium <%= !tieneHorario ? 'opacity-50 cursor-not-allowed' : '' %>">
+        Consultar Horario
+      </a>
+      <a href="/logout"
+        class="px-6 py-2 rounded-xl bg-red-500/80 hover:bg-red-600/80 transition font-bold shadow-lg">Cerrar Sesión</a>
+    </div>
+
+    <div id="menu"
+      class="absolute top-full left-0 w-full bg-indigo-900/95 backdrop-blur-lg border-t border-white/20 overflow-hidden max-h-0 transition-all duration-500 ease-in-out flex flex-col items-center gap-4 md:hidden z-50 shadow-2xl">
+      <!-- BOTÓN CONSULTAR HORARIO (MÓVIL) -->
+      <a href="<%= tieneHorario ? '/horario' : '#' %>"
+        onclick="<%= !tieneHorario ? `alert('⚠️ Aviso del Sistema:\\n\\nNo se puede consultar el horario porque aún no se ha cargado ningún archivo CSV.\\n\\nPor favor, utiliza el panel de abajo para subir el Horario del Centro.'); return false;` : '' %>"
+        class="w-full text-center py-3 hover:bg-white/10 <%= !tieneHorario ? 'opacity-50 cursor-not-allowed' : '' %>">
+        Consultar Horario
+      </a>
+      <a href="/logout" class="w-full text-center py-3 bg-red-500/20 text-red-200">Cerrar Sesión</a>
+    </div>
+  </nav>
+
+  <div class="pt-28 pb-10">
+    <div class="max-w-7xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-start">
+
+      <!-- 1. REGISTRAR FALTA -->
+      <div class="glass-card">
+        <div class="flex items-center gap-3 mb-6 border-b border-white/20 pb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-pink-300" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 class="text-2xl font-bold">Registrar Falta</h2>
+        </div>
+
+        <form action="/nueva-falta" method="post" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase opacity-70 ml-1">Docente (Siglas)</label>
+              <input name="siglas" placeholder="Ej: PRF" required class="input-glass mt-1 p-2">
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase opacity-70 ml-1">Fecha</label>
+              <input type="date" name="fecha" required class="input-glass mt-1 p-2">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase opacity-70 ml-1">Hora (Hueco)</label>
+              <select name="hueco" class="input-glass mt-1 p-2 cursor-pointer">
+                <% for(let i=1; i<=13; i++) { %>
+                  <option value="<%= i %>">
+                    <%= i %>
+                  </option>
+                  <% } %>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase opacity-70 ml-1">Grupo</label>
+              <input name="grupo" placeholder="Ej: 2DAW" class="input-glass mt-1 p-2">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-bold uppercase opacity-70 ml-1">Asignatura</label>
+              <input name="modulo" placeholder="Ej: DWECL" class="input-glass mt-1 p-2">
+            </div>
+            <div>
+              <label class="text-xs font-bold uppercase opacity-70 ml-1">Aula</label>
+              <input name="aula" placeholder="Ej: INF-1" class="input-glass mt-1 p-2">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold uppercase opacity-70 ml-1">Motivo / Obs.</label>
+            <input name="motivo" placeholder="Enfermedad, visita médica..." class="input-glass mt-1 p-2">
+          </div>
+
+          <button class="gradient-btn w-full py-3 text-lg mt-2 shadow-pink-500/30">Generar Guardia</button>
+        </form>
+      </div>
+
+      <!-- 2. SOLICITUDES -->
+      <div class="glass-card flex flex-col h-[650px]">
+        <div class="flex items-center justify-between gap-3 mb-4 border-b border-white/20 pb-4 flex-shrink-0">
+          <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-300" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h2 class="text-2xl font-bold">Solicitudes</h2>
+          </div>
+          <span class="bg-indigo-500 px-3 py-1 rounded-full text-xs font-bold">
+            <%= asuntos.length %>
+          </span>
+        </div>
+
+        <% if (asuntos.length> 0) { %>
+          <div class="overflow-y-auto custom-scroll pr-2 -mr-2 p-2 space-y-4 flex-grow">
+            <% asuntos.forEach(a=> {
+              const fecha = new Date(a.fecha);
+              const fechaCorta =
+              `${fecha.getDate().toString().padStart(2,'0')}/${(fecha.getMonth()+1).toString().padStart(2,'0')}`;
+              %>
+              <div
+                class="bg-black/20 hover:bg-black/30 border border-white/10 p-5 rounded-2xl transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 class="font-bold text-lg text-white group-hover:text-indigo-200 transition-colors">
+                      <%= a.nombre %>
+                    </h3>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-xs bg-white/10 px-2 py-0.5 rounded text-white/70">Antig: <%= a.antiguedad_centro
+                          ? new Date(a.antiguedad_centro).getFullYear() : 'N/A' %></span>
+                      <span class="text-xs bg-white/10 px-2 py-0.5 rounded text-white/70">
+                        <%= a.tipo_funcionario %>
+                      </span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-2xl font-black text-indigo-300">
+                      <%= fechaCorta %>
+                    </p>
+                    <span class="text-[10px] uppercase tracking-wider opacity-60">Solicitado</span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                  <form action="/aprobar-asunto/<%= a.id %>" method="post">
+                    <button
+                      class="w-full bg-emerald-500/80 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-colors flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Aprobar
+                    </button>
+                  </form>
+                  <form action="/rechazar-asunto/<%= a.id %>" method="post">
+                    <button
+                      class="w-full bg-rose-500/80 hover:bg-rose-500 text-white font-bold py-2 rounded-lg text-sm shadow transition-colors flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Rechazar
+                    </button>
+                  </form>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+          <% } else { %>
+            <div class="flex flex-col items-center justify-center h-full text-white/50 pb-8">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-2 opacity-50" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p>No hay asuntos pendientes</p>
+            </div>
+            <% } %>
+      </div>
+
+      <!-- 3. GESTIÓN -->
+      <div class="flex flex-col gap-6">
+
+        <!-- TARJETA CARGA Y BORRADO -->
+        <div class="glass-card flex-grow">
+          <div class="flex items-center gap-3 mb-6 border-b border-white/20 pb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-300" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <h2 class="text-2xl font-bold">Horario</h2>
+          </div>
+
+          <form action="/admin/cargar-horario" method="post" enctype="multipart/form-data" class="flex flex-col gap-4">
+            <div
+              class="border-2 border-dashed border-white/30 rounded-xl p-8 text-center hover:bg-white/5 transition cursor-pointer relative">
+              <input type="file" name="csv" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+              <p class="font-medium text-lg">Arrastra tu CSV aquí</p>
+              <p class="text-sm opacity-60 mt-1">o haz clic para seleccionar</p>
+            </div>
+            <button class="gradient-btn w-full py-3 text-lg">Subir Archivo</button>
+          </form>
+
+          <!-- BOTÓN DE ELIMINAR -->
+          <form action="/admin/borrar-horario" method="post" class="mt-6 pt-6 border-t border-white/10"
+            onsubmit="return confirm('¿ATENCIÓN: Estás a punto de borrar TODO el horario escolar. Esta acción es irreversible. ¿Continuar?');">
+            <button
+              class="w-full flex items-center justify-center gap-2 text-red-300 hover:text-white border border-red-500/30 hover:bg-red-600/80 font-bold py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/20 group">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:animate-bounce" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Eliminar Horario Actual
+            </button>
+          </form>
+        </div>
+
+        <!-- GESTIÓN USUARIOS -->
+        <a href="/admin/configuracion"
+          class="glass-card hover:bg-white/30 transition group flex items-center justify-between cursor-pointer !p-6">
+          <div class="flex items-center gap-4">
+            <div class="bg-slate-500 p-3 rounded-lg shadow-lg group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Gestión Usuarios</h3>
+              <p class="text-sm opacity-70">Crear y borrar docentes</p>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 opacity-50 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+
+        <!-- CUADRANTE -->
+        <a href="/cuadrante"
+          class="glass-card hover:bg-white/30 transition group flex items-center justify-between cursor-pointer !p-6">
+          <div class="flex items-center gap-4">
+            <div class="bg-indigo-500 p-3 rounded-lg shadow-lg group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Ver Cuadrante</h3>
+              <p class="text-sm opacity-70">Gestionar guardias del día</p>
+            </div>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 opacity-50 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
